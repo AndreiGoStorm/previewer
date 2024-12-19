@@ -1,0 +1,13 @@
+app:
+  name: 'previewer-andrei'
+  version: '1.0.0'
+
+http:
+  host: '127.0.0.1'
+  port: 5000
+
+logger:
+  level: "INFO"
+
+cache:
+  capacity: 5
