@@ -3,13 +3,12 @@ package service
 import (
 	"net/http"
 
+	"github.com/AndreiGoStorm/previewer/internal/logger"
 	"github.com/disintegration/imaging"
-	"previewer/internal/logger"
 )
 
 type Previewer struct {
 	logg    *logger.Logger
-	dir     string
 	loader  *Loader
 	Storage *Storage
 }

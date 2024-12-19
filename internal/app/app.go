@@ -1,13 +1,12 @@
 package app
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"previewer/internal/cache"
-	"previewer/internal/logger"
-	"previewer/internal/service"
+
+	"github.com/AndreiGoStorm/previewer/internal/cache"
+	"github.com/AndreiGoStorm/previewer/internal/logger"
+	"github.com/AndreiGoStorm/previewer/internal/service"
 )
 
 type App struct {
@@ -24,64 +23,46 @@ func New(logg *logger.Logger, lru cache.Cache, previewer *service.Previewer) *Ap
 	}
 }
 
-type Response struct {
-	Data  interface{} `json:"data"`
-	Error struct {
-		Message string `json:"message"`
-	} `json:"error"`
-}
-
-func (a *App) HandleStart(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("handler22Default"))
-	w.WriteHeader(http.StatusOK)
-}
-
 func (a *App) HandleFill(w http.ResponseWriter, r *http.Request) {
 	resp := &Response{}
 	if r.Method != http.MethodGet {
-		resp.Error.Message = fmt.Sprintf("method %s not not supported on uri %s", r.Method, r.URL.Path)
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		WriteResponse(w, resp)
+		err := fmt.Errorf("method %s not not supported on uri %s", r.Method, r.URL.Path)
+		resp.Write(w, err, http.StatusMethodNotAllowed)
 		return
 	}
 
 	req := &Request{}
 	req.CreateHash(r.URL.Path)
 
-	_, ok := a.lru.Get(req.Hash)
+	ext, ok := a.lru.Get(req.Hash)
 	if ok {
-		w.Write([]byte("Cache Hit " + req.Hash))
-		w.WriteHeader(http.StatusOK)
-		return
+		a.logg.Info("Cache Hit " + req.Hash)
+		imagePath, err := a.previewer.Storage.GetImagePath(req.GetCachedImageName(ext))
+		if err == nil {
+			resp.WriteImage(w, r, imagePath)
+			return
+		}
 	}
 
 	if err := req.Validate(r); err != nil {
 		a.logg.Warn("app request validate", err)
-		resp.Error.Message = err.Error()
-		WriteResponse(w, resp)
+		resp.Write(w, err, http.StatusUnprocessableEntity)
 		return
 	}
 
 	if err := a.previewer.Preview(r, req.ConvertToServiceImage()); err != nil {
 		a.logg.Warn("app previewer preview", err)
-		resp.Error.Message = err.Error()
-		WriteResponse(w, resp)
+		resp.Write(w, err, http.StatusBadGateway)
 		return
 	}
 
 	a.lru.Set(req.Hash, req.Ext)
-
-	w.WriteHeader(http.StatusOK)
-}
-
-func WriteResponse(w http.ResponseWriter, resp *Response) {
-	resBuf, err := json.Marshal(resp)
+	imagePath, err := a.previewer.Storage.GetImagePath(req.GetImageName())
 	if err != nil {
-		log.Printf("response marshal error: %s", err)
+		a.logg.Warn("app previewer GetImagePath", err)
+		resp.Write(w, err, http.StatusNotFound)
+		return
 	}
-	_, err = w.Write(resBuf)
-	if err != nil {
-		log.Printf("response marshal error: %s", err)
-	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	resp.WriteImage(w, r, imagePath)
 }

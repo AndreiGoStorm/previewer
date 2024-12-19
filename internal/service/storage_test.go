@@ -3,9 +3,9 @@ package service
 import (
 	"os"
 	"path/filepath"
-	"previewer/internal/logger"
 	"testing"
 
+	"github.com/AndreiGoStorm/previewer/internal/logger"
 	"github.com/stretchr/testify/require"
 )
 

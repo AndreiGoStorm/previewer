@@ -1,4 +1,4 @@
-module previewer
+module github.com/AndreiGoStorm/previewer
 
 go 1.23
 

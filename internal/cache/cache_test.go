@@ -4,12 +4,12 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"previewer/internal/config"
-	"previewer/internal/logger"
-	"previewer/internal/service"
 	"strconv"
 	"testing"
 
+	"github.com/AndreiGoStorm/previewer/internal/config"
+	"github.com/AndreiGoStorm/previewer/internal/logger"
+	"github.com/AndreiGoStorm/previewer/internal/service"
 	"github.com/stretchr/testify/require"
 )
 

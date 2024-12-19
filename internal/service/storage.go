@@ -3,7 +3,8 @@ package service
 import (
 	"os"
 	"path/filepath"
-	"previewer/internal/logger"
+
+	"github.com/AndreiGoStorm/previewer/internal/logger"
 )
 
 type Storage struct {
@@ -57,6 +58,16 @@ func (s *Storage) DeleteFile(filename string) error {
 		}
 	}
 	return nil
+}
+
+func (s *Storage) GetImagePath(filename string) (string, error) {
+	imagePath := s.getStorageFullPath(filename)
+	_, err := os.Stat(imagePath)
+	if err != nil {
+		s.logg.Info("Image not fount: " + filename)
+		return "", err
+	}
+	return imagePath, err
 }
 
 func (s *Storage) getStorageFullPath(filename string) string {

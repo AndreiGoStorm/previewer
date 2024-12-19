@@ -4,11 +4,12 @@ import (
 	"context"
 	"net"
 	"net/http"
-	"previewer/internal/app"
-	"previewer/internal/config"
-	"previewer/internal/logger"
 	"strconv"
 	"time"
+
+	"github.com/AndreiGoStorm/previewer/internal/app"
+	"github.com/AndreiGoStorm/previewer/internal/config"
+	"github.com/AndreiGoStorm/previewer/internal/logger"
 )
 
 const (
@@ -37,7 +38,6 @@ func New(conf config.HTTP, l *logger.Logger) *Server {
 
 func (s *Server) Start(application *app.App) {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", application.HandleStart)
 	mux.HandleFunc("/fill/", application.HandleFill)
 	s.server.Handler = mux
 

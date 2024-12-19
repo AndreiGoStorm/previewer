@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
-	"previewer/internal/config"
-	"previewer/internal/service"
+	"github.com/AndreiGoStorm/previewer/internal/config"
+	"github.com/AndreiGoStorm/previewer/internal/service"
 )
 
 type Cache interface {

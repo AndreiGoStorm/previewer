@@ -6,16 +6,17 @@ import (
 	"fmt"
 	"net/http"
 	"path"
-	"previewer/internal/service"
 	"strconv"
 	"strings"
+
+	"github.com/AndreiGoStorm/previewer/internal/service"
 )
 
 type Request struct {
 	Hash   string
 	Width  int
 	Height int
-	Url    string
+	URL    string
 	Ext    string
 }
 
@@ -24,6 +25,14 @@ func (req *Request) CreateHash(url string) {
 	h1.Write([]byte(url))
 	hash := h1.Sum(nil)
 	req.Hash = hex.EncodeToString(hash)
+}
+
+func (req *Request) GetCachedImageName(ext interface{}) string {
+	return req.Hash + ext.(string)
+}
+
+func (req *Request) GetImageName() string {
+	return req.Hash + req.Ext
 }
 
 func (req *Request) Validate(r *http.Request) (err error) {
@@ -43,7 +52,7 @@ func (req *Request) Validate(r *http.Request) (err error) {
 		return err
 	}
 
-	err = req.validateUrl(strings.TrimLeft(url, fmt.Sprintf("%s/%s/", parts[0], parts[1])))
+	err = req.validateURL(strings.TrimLeft(url, fmt.Sprintf("%s/%s/", parts[0], parts[1])))
 	if err != nil {
 		return err
 	}
@@ -73,27 +82,29 @@ func (req *Request) validateHeight(height string) (err error) {
 	return
 }
 
-func (req *Request) validateUrl(url string) (err error) {
+func (req *Request) validateURL(url string) (err error) {
 	if url == "" {
 		return fmt.Errorf("loading url is empty")
 	}
-	req.Url = fmt.Sprintf("https://%s", url)
-
+	req.URL = fmt.Sprintf("https://%s", url)
 	req.Ext = strings.ToLower(path.Ext(url))
-	if !strings.Contains("jpg,jpeg,png,gif", strings.TrimLeft(req.Ext, ".")) {
-		return fmt.Errorf("loading image has wrong extension: %s", req.Ext)
+	if req.Ext == "" {
+		return fmt.Errorf("loading image extension is empty")
+	}
+
+	extension := strings.TrimLeft(req.Ext, ".")
+	if !strings.Contains("jpg,jpeg,png,gif", extension) { //nolint:gocritic
+		return fmt.Errorf("loading image has wrong extension: %s", extension)
 	}
 	return
 }
 
 func (req *Request) ConvertToServiceImage() *service.Image {
-	im := &service.Image{
+	return &service.Image{
 		Width:     req.Width,
 		Height:    req.Height,
-		Url:       req.Url,
+		URL:       req.URL,
 		Ext:       req.Ext,
-		ImageName: req.Hash + req.Ext,
+		ImageName: req.GetImageName(),
 	}
-
-	return im
 }

@@ -3,7 +3,7 @@ package service
 type Image struct {
 	Width           int
 	Height          int
-	Url             string
+	URL             string
 	Ext             string
 	ImageName       string
 	LoadedImageName string

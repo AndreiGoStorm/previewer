@@ -30,7 +30,7 @@ func NewLoader(dir string) *Loader {
 }
 
 func (l *Loader) LoadImage(r *http.Request, im *Image) (err error) {
-	imageRequest := l.createImageRequest(r, im.Url)
+	imageRequest := l.createImageRequest(r, im.URL)
 	if err = l.upload(imageRequest, im); err != nil {
 		return err
 	}
@@ -39,7 +39,8 @@ func (l *Loader) LoadImage(r *http.Request, im *Image) (err error) {
 }
 
 func (l *Loader) createImageRequest(r *http.Request, url string) *http.Request {
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	imageRequest, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	for k, v := range r.Header {
 		imageRequest.Header[k] = v
@@ -53,6 +54,7 @@ func (l *Loader) upload(imageRequest *http.Request, im *Image) error {
 	if err != nil {
 		return err
 	}
+	respImage.Body.Close()
 
 	if respImage.StatusCode != http.StatusOK {
 		return fmt.Errorf("loader upload StatusCode: %s", respImage.Status)

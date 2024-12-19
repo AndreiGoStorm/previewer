@@ -4,13 +4,14 @@ import (
 	"flag"
 	"os"
 	"os/signal"
-	"previewer/internal/app"
-	"previewer/internal/cache"
-	"previewer/internal/config"
-	"previewer/internal/logger"
-	"previewer/internal/server"
-	"previewer/internal/service"
 	"syscall"
+
+	"github.com/AndreiGoStorm/previewer/internal/app"
+	"github.com/AndreiGoStorm/previewer/internal/cache"
+	"github.com/AndreiGoStorm/previewer/internal/config"
+	"github.com/AndreiGoStorm/previewer/internal/logger"
+	"github.com/AndreiGoStorm/previewer/internal/server"
+	"github.com/AndreiGoStorm/previewer/internal/service"
 )
 
 var configFile string
@@ -31,7 +32,7 @@ func main() {
 	httpServer.Start(application)
 
 	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGQUIT, os.Interrupt)
+	signal.Notify(interrupt, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, os.Interrupt)
 
 	select {
 	case s := <-interrupt:
