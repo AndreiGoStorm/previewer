@@ -9,10 +9,11 @@ import (
 
 type (
 	Config struct {
-		App   `yaml:"app"`
-		HTTP  `yaml:"http"`
-		Log   `yaml:"logger"`
-		Cache `yaml:"cache"`
+		App     `yaml:"app"`
+		HTTP    `yaml:"http"`
+		Loading `yaml:"loading"`
+		Log     `yaml:"logger"`
+		Cache   `yaml:"cache"`
 	}
 
 	App struct {
@@ -23,6 +24,10 @@ type (
 	HTTP struct {
 		Host string `env-required:"true" yaml:"host"`
 		Port int    `env-required:"true" yaml:"port"`
+	}
+
+	Loading struct {
+		Protocol string `env-required:"true" yaml:"protocol"`
 	}
 
 	Log struct {

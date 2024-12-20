@@ -26,7 +26,7 @@ func main() {
 
 	previewer := service.New(logg)
 	lru := cache.New(conf.Cache, previewer.Storage)
-	application := app.New(logg, lru, previewer)
+	application := app.New(logg, lru, previewer, conf)
 
 	httpServer := server.New(conf.HTTP, logg)
 	httpServer.Start(application)

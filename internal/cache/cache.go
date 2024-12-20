@@ -15,6 +15,7 @@ type Cache interface {
 	Set(key string, value interface{}) bool
 	Get(key string) (interface{}, bool)
 	Clear()
+	ToString(interface{}) string
 }
 
 type lruCache struct {
@@ -94,6 +95,10 @@ func (lru *lruCache) Clear() {
 	lru.Mutex.Lock()
 	clear(lru.items)
 	lru.queue = list.New()
+}
+
+func (lru *lruCache) ToString(value interface{}) string {
+	return value.(string)
 }
 
 func (lru *lruCache) moveToFront(item *list.Element, key string) {

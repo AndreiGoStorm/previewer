@@ -13,7 +13,7 @@ type Response struct {
 	} `json:"error"`
 }
 
-func (resp *Response) Write(w http.ResponseWriter, err error, statusCode int) {
+func (resp *Response) WriteError(w http.ResponseWriter, err error, statusCode int) {
 	resp.Error.Message = err.Error()
 	w.WriteHeader(statusCode)
 

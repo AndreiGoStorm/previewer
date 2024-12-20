@@ -68,7 +68,8 @@ func TestRequestValidateHeight(t *testing.T) {
 func TestRequestValidateURL(t *testing.T) {
 	req := &Request{}
 	t.Run("validate url: correct url", func(t *testing.T) {
-		err := req.validateURL("github.com/stretchr/testify/require.jpg")
+		req.Protocol = "https"
+		err := req.validateURL("localhost/gopher_500x500.jpg")
 		require.NoError(t, err)
 	})
 
@@ -78,14 +79,24 @@ func TestRequestValidateURL(t *testing.T) {
 		require.EqualError(t, err, "loading url is empty")
 	})
 
+	t.Run("validate url: correct url", func(t *testing.T) {
+		req.Protocol = ""
+		err := req.validateURL("example.com")
+		require.Error(t, err)
+		require.EqualError(t, err, "wrong url")
+	})
+}
+
+func TestRequestValidateExt(t *testing.T) {
+	req := &Request{}
 	t.Run("error validate url: empty extension", func(t *testing.T) {
-		err := req.validateURL("github.com/stretchr/testify/require")
+		err := req.validateExt("github.com/stretchr/testify/require")
 		require.Error(t, err)
 		require.EqualError(t, err, "loading image extension is empty")
 	})
 
 	t.Run("error validate url: wrong extension", func(t *testing.T) {
-		err := req.validateURL("github.com/stretchr/testify/require.ttf")
+		err := req.validateExt("github.com/stretchr/testify/require.ttf")
 		require.Error(t, err)
 		require.EqualError(t, err, "loading image has wrong extension: ttf")
 	})

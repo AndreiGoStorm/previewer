@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"net/url"
 	"path"
 	"strconv"
 	"strings"
@@ -13,11 +14,13 @@ import (
 )
 
 type Request struct {
-	Hash   string
-	Width  int
-	Height int
-	URL    string
-	Ext    string
+	Protocol  string
+	Hash      string
+	Width     int
+	Height    int
+	URL       string
+	Ext       string
+	ImageName string
 }
 
 func (req *Request) CreateHash(url string) {
@@ -25,14 +28,6 @@ func (req *Request) CreateHash(url string) {
 	h1.Write([]byte(url))
 	hash := h1.Sum(nil)
 	req.Hash = hex.EncodeToString(hash)
-}
-
-func (req *Request) GetCachedImageName(ext interface{}) string {
-	return req.Hash + ext.(string)
-}
-
-func (req *Request) GetImageName() string {
-	return req.Hash + req.Ext
 }
 
 func (req *Request) Validate(r *http.Request) (err error) {
@@ -53,6 +48,11 @@ func (req *Request) Validate(r *http.Request) (err error) {
 	}
 
 	err = req.validateURL(strings.TrimLeft(url, fmt.Sprintf("%s/%s/", parts[0], parts[1])))
+	if err != nil {
+		return err
+	}
+
+	err = req.validateExt(req.URL)
 	if err != nil {
 		return err
 	}
@@ -82,12 +82,21 @@ func (req *Request) validateHeight(height string) (err error) {
 	return
 }
 
-func (req *Request) validateURL(url string) (err error) {
-	if url == "" {
+func (req *Request) validateURL(u string) (err error) {
+	if u == "" {
 		return fmt.Errorf("loading url is empty")
 	}
-	req.URL = fmt.Sprintf("https://%s", url)
-	req.Ext = strings.ToLower(path.Ext(url))
+
+	req.URL = fmt.Sprintf("%s://%s", req.Protocol, u)
+	_, err = url.ParseRequestURI(req.URL)
+	if err != nil {
+		return fmt.Errorf("wrong url")
+	}
+	return
+}
+
+func (req *Request) validateExt(u string) (err error) {
+	req.Ext = strings.ToLower(path.Ext(u))
 	if req.Ext == "" {
 		return fmt.Errorf("loading image extension is empty")
 	}
@@ -96,6 +105,7 @@ func (req *Request) validateURL(url string) (err error) {
 	if !strings.Contains("jpg,jpeg,png,gif", extension) { //nolint:gocritic
 		return fmt.Errorf("loading image has wrong extension: %s", extension)
 	}
+	req.ImageName = req.Hash + req.Ext
 	return
 }
 
@@ -105,6 +115,6 @@ func (req *Request) ConvertToServiceImage() *service.Image {
 		Height:    req.Height,
 		URL:       req.URL,
 		Ext:       req.Ext,
-		ImageName: req.GetImageName(),
+		ImageName: req.ImageName,
 	}
 }

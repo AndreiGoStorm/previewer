@@ -64,7 +64,7 @@ func (s *Storage) GetImagePath(filename string) (string, error) {
 	imagePath := s.getStorageFullPath(filename)
 	_, err := os.Stat(imagePath)
 	if err != nil {
-		s.logg.Info("Image not fount: " + filename)
+		s.logg.Error("storage GetImagePath getStorageFullPath: %w", err)
 		return "", err
 	}
 	return imagePath, err

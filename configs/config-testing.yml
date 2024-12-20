@@ -6,6 +6,9 @@ http:
   host: '127.0.0.1'
   port: 5000
 
+loading:
+  protocol: https
+  
 logger:
   level: "INFO"
 
