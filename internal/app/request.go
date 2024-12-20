@@ -47,7 +47,9 @@ func (req *Request) Validate(r *http.Request) (err error) {
 		return err
 	}
 
-	err = req.validateURL(strings.TrimLeft(url, fmt.Sprintf("%s/%s/", parts[0], parts[1])))
+	widthTrim := strings.TrimLeft(url, fmt.Sprintf("%s/", parts[0]))
+	heightTrim := strings.TrimLeft(widthTrim, fmt.Sprintf("%s/", parts[1]))
+	err = req.validateURL(heightTrim)
 	if err != nil {
 		return err
 	}

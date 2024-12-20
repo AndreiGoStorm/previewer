@@ -3,7 +3,7 @@ app:
   version: '1.0.0'
 
 http:
-  host: '127.0.0.1'
+  host: '100.90.15.2'
   port: 5000
 
 loading:

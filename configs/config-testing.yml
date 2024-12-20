@@ -3,11 +3,11 @@ app:
   version: '1.0.0'
 
 http:
-  host: '127.0.0.1'
-  port: 5000
+  host: '100.90.15.3'
+  port: 5001
 
 loading:
-  protocol: https
+  protocol: http
   
 logger:
   level: "INFO"

@@ -15,3 +15,19 @@ install-lint-deps:
 
 lint: install-lint-deps
 	golangci-lint run ./...
+
+up-build:
+	cd deployments && \
+	docker-compose --project-name="previewer" up --build
+
+up:
+	cd deployments && \
+	docker-compose --project-name="previewer" up -d
+
+down:
+	cd deployments && \
+	docker-compose --project-name="previewer" stop
+
+integration-tests: up
+	go test -race ./integrations/...
+	make down

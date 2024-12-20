@@ -8,6 +8,8 @@ import (
 
 var configFile string
 
+var nginxHost = "100.90.15.4"
+
 func init() {
 	flag.StringVar(&configFile, "config", "../configs/config-testing.yml", "Path to configuration file")
 }

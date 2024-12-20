@@ -21,6 +21,8 @@ func init() {
 }
 
 func main() {
+	flag.Parse()
+
 	conf := config.New(configFile)
 	logg := logger.New(conf.Log.Level)
 

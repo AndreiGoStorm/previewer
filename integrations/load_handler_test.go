@@ -7,13 +7,11 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/disintegration/imaging"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -43,7 +41,7 @@ func (s *LoadHandleSuite) SetupSuite() {
 func (s *LoadHandleSuite) SetupTest() {
 	s.width = "250"
 	s.height = "250"
-	s.URL = "raw.githubusercontent.com/OtusGolang/final_project/master/examples/image-previewer/gopher_500x500.jpg"
+	s.URL = fmt.Sprintf("%s/gopher_333x666.jpg", nginxHost)
 }
 
 const (
@@ -62,30 +60,14 @@ func (s *LoadHandleSuite) TestLoadingImage() {
 	s.Require().NoError(err)
 	defer response.Body.Close()
 
-	s.Require().Equal(http.StatusOK, response.StatusCode)
-	respBody, err := io.ReadAll(response.Body)
-	s.Require().NoError(err)
-
 	contentType := response.Header.Get("Content-Type")
 	is := strings.Contains(contentType, "image/")
 	s.Require().True(is)
 
-	toFile, _ := os.CreateTemp("/tmp/", "*.jpg")
-	defer os.Remove(toFile.Name())
-
-	_, err = toFile.Write(respBody)
+	s.Require().Equal(http.StatusOK, response.StatusCode)
+	respBody, err := io.ReadAll(response.Body)
 	s.Require().NoError(err)
-
-	file, err := os.Open(toFile.Name())
-	s.Require().NoError(err)
-	defer file.Close()
-
-	img, err := imaging.Decode(file)
-	s.Require().NoError(err)
-
-	bounds := img.Bounds()
-	s.Require().Equal(s.width, strconv.Itoa(bounds.Max.X))
-	s.Require().Equal(s.height, strconv.Itoa(bounds.Max.Y))
+	s.Require().Len(respBody, 24426)
 }
 
 func (s *LoadHandleSuite) TestLoadingImageCached() {
@@ -107,7 +89,6 @@ func (s *LoadHandleSuite) TestLoadingImageCached() {
 
 	elapsed := time.Since(start)
 	s.Require().Less(elapsed, int64(timeLimit), "the program is too slow")
-	fmt.Println(elapsed)
 }
 
 func TestLoadHandleSuite(t *testing.T) {

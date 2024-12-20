@@ -1,0 +1,40 @@
+services:
+  previewer:
+    container_name: previewer_app
+    build:
+      context: ../
+      dockerfile: deployments/previewer/Dockerfile
+    hostname: localhost
+    ports: [ '5000:5000' ]
+    restart: unless-stopped
+    volumes:
+      - '..:/go/src'
+    working_dir: /go/src
+    networks:
+      previewer-network: { ipv4_address: 100.90.15.2 }
+
+  integrations:
+    container_name: previewer_integrations
+    build:
+      context: ../
+      dockerfile: deployments/integration_tests/Dockerfile
+    hostname: localhost
+    ports: [ '5001:5001' ]
+    restart: unless-stopped
+    networks:
+      previewer-network: { ipv4_address: 100.90.15.3 }
+
+  nginx:
+    container_name: previewer_nginx
+    build:
+      context: ./nginx
+    ports: [ '8980:80' ]
+    restart: unless-stopped
+    networks:
+      previewer-network: { ipv4_address: 100.90.15.4 }
+
+networks:
+  previewer-network:
+    driver: bridge
+    ipam:
+      config: [ { subnet: 100.90.15.0/24 } ]
