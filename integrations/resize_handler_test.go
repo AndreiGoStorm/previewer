@@ -37,11 +37,6 @@ func (s *ResizeHandleSuite) SetupSuite() {
 	}
 }
 
-func (s *ResizeHandleSuite) SetupTest() {
-	// s.height = "250"
-	// s.URL = fmt.Sprintf("%s/gopher_333x666.jpg", nginxHost)
-}
-
 func (s *ResizeHandleSuite) TestResizingImage() {
 	for _, test := range []struct {
 		width  string

@@ -150,7 +150,7 @@ func initConfig() *config.Config {
 	if err != nil {
 		panic(err)
 	}
-	configFile := "/../../configs/config.yml"
+	configFile := "/../../configs/config-testing.yml"
 	conf := config.New(path.Dir(file) + configFile)
 
 	return conf
